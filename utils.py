@@ -21,6 +21,6 @@ def read_csv(filename):
     return data
 
 
-def write_lines(obj, filename):
-    with open(filename, 'a') as f:
+def write_lines(obj, filename, append=False):
+    with open(filename, 'a' if append else 'w') as f:
         f.writelines('\n'.join(iter(obj)))
