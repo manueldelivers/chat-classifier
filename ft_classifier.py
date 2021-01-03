@@ -1,6 +1,7 @@
 import fasttext as ft
 from utils import change_dict, read_csv, write_lines
 from pathlib import Path
+import re
 
 ft.FastText.eprint = lambda x: None  # suppress a deprecation warning
 
@@ -68,7 +69,9 @@ def _clean_labels(data, label_key=LABEL_KEY, relevant_labels=None):
 
 def _clean_text(text):
     # add other steps here
-    text = text.lower()
+    text = re.sub(r"(?P<p>[^a-zA-Z0-9 ])", " \g<p> ", text)  # noqa add space for punctuation
+    text = re.sub(r" +", " ", text)
+    text = text.lower().strip()
     return text
 
 
