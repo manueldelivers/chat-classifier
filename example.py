@@ -1,4 +1,5 @@
 import ft_classifier as classifier
+from pprint import pprint
 
 hyperparameters = {
     'minCount': 5,
@@ -7,5 +8,6 @@ hyperparameters = {
 
 classifier.train('training_slots.csv', hyperparameters=hyperparameters)
 result = classifier.predict('how is the weather outside?')
-print(result)
+pprint(result)
 
+pprint(classifier.word_freq(output_format='dict'))

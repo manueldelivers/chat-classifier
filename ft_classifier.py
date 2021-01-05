@@ -85,7 +85,7 @@ def _load_data(filename, text_key=TEXT_KEY, remove_empty=True):
     try:
         data = read_csv(filename)
     except FileNotFoundError:
-        raise InputFileNotFoundError
+        raise InputFileNotFoundError()
 
     # add other conditions if needed
     # currently only ignores rows with no utterance
@@ -114,7 +114,7 @@ def _write_ft_file(filename, text_key=TEXT_KEY, label_key=LABEL_KEY,
 
     def make_row(label, text, context):
         row = [add_prefix(label)] + ([context] if context else []) + [text]
-        return ' '.join(row)
+        return ' '.join(row).strip()
 
     TRAIN_FT_FILEPATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -175,4 +175,18 @@ def predict(text):
         labels = [label.split(LABEL_PREFIX)[1] for label in labels]
         return dict(zip(labels, probs))
     except AttributeError:
-        raise TrainedModelNotFoundError
+        raise TrainedModelNotFoundError()
+
+
+def word_freq(output_format='dict'):
+    try:
+        word_freq_ = zip(*model.get_words(include_freq=True))
+    except AttributeError:
+        raise TrainedModelNotFoundError()
+
+    if output_format == 'dict':
+        return dict(word_freq_)
+    elif output_format == 'list':
+        return list(word_freq_)
+    else:
+        raise NotImplementedError()
