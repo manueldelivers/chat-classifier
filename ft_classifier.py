@@ -69,7 +69,8 @@ def _clean_labels(data, label_key=LABEL_KEY, relevant_labels=None):
 
 def _clean_text(text):
     # add other steps here
-    text = re.sub(r"(?P<p>[^a-zA-Z0-9 ])", " \g<p> ", text)  # noqa add space for punctuation
+    text = re.sub(r"(?P<p>[^a-zA-Z0-9 ])", " \g<p> ",
+                  text)  # noqa add space for punctuation
     text = re.sub(r" +", " ", text)
     text = text.lower().strip()
     return text
@@ -123,9 +124,20 @@ def _write_ft_file(filename, text_key=TEXT_KEY, label_key=LABEL_KEY,
     write_lines(texts, TRAIN_FT_FILEPATH)
 
 
-def train(filename, text_key=TEXT_KEY, label_key=LABEL_KEY, remove_empty=True,
-          clean=True, relevant_labels=None, prefix=LABEL_PREFIX,
-          preprocess=True, multilabel=False):
+def train(
+        filename,
+        hyperparameters=None,
+        text_key=TEXT_KEY,
+        label_key=LABEL_KEY,
+        remove_empty=True,
+        clean=True,
+        relevant_labels=None,
+        prefix=LABEL_PREFIX,
+        preprocess=True,
+        multilabel=False
+):
+    assert isinstance(hyperparameters, (dict, type(None)))
+
     if preprocess:
         _write_ft_file(filename, text_key=text_key, label_key=label_key,
                        remove_empty=remove_empty, clean=clean,
@@ -136,14 +148,22 @@ def train(filename, text_key=TEXT_KEY, label_key=LABEL_KEY, remove_empty=True,
     # TODO: hyperparameters might need to be adjusted
     #  https://fasttext.cc/docs/en/python-module.html
 
+    if not hyperparameters:
+        hyperparameters = {}
+
+    default_hyperparameters = {
+        'minCount': 5,
+        'loss': 'ova' if multilabel else 'softmax'
+    }
+
+    for k in default_hyperparameters.keys():
+        if k not in hyperparameters.keys():
+            hyperparameters[k] = default_hyperparameters[k]
+
     if not TRAIN_FT_FILEPATH.exists():
         raise TrainingDataNotFoundError
 
-    model = ft.train_supervised(
-        input=str(TRAIN_FT_FILEPATH),
-        minCount=5,
-        loss='ova' if multilabel else 'softmax'
-    )
+    model = ft.train_supervised(input=str(TRAIN_FT_FILEPATH), **hyperparameters)
 
     MODEL_FILEPATH.parent.mkdir(parents=True, exist_ok=True)
     model.save_model(str(MODEL_FILEPATH))
