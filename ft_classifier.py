@@ -1,6 +1,7 @@
 import fasttext as ft
 from utils import change_dict, read_csv, write_lines
 from pathlib import Path
+import os
 import re
 
 ft.FastText.eprint = lambda x: None  # suppress a deprecation warning
@@ -122,6 +123,15 @@ def _write_ft_file(filename, text_key=TEXT_KEY, label_key=LABEL_KEY,
                       row[context_key] if context_key in row.keys() else '',
                       row[text_key]) for row in data]
     write_lines(texts, TRAIN_FT_FILEPATH)
+
+
+def save_vectors():
+    if not MODEL_FILEPATH.exists():
+        raise TrainedModelNotFoundError()
+
+    write_lines([f"{len(model.words)} {len(model[model.words[0]])}"] + \
+                [w + ' ' + ' '.join(map(str, model['a'])) for w in model.words],
+                MODEL_FILEPATH.with_suffix('.vec'))
 
 
 def train(
