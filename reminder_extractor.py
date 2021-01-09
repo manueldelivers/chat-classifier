@@ -42,15 +42,6 @@ GRAMMAR = r"""
         {<ACTION><IN.*|CC.*|ACTION.*>*}
         {<ACTION>}
 """
-__GRAMMAR = r"""
-    ACT:
-        {<VB|VBP|VBD>*<NP><VBD|VBN>}
-        {<VB|VBP|VBD>*<NP><VBD|VBN>}
-        {<VB|VBP|VBD>*<NP>}
-    VP:
-        {<ACT><IN|CC><ACT>}
-        {<ACT>}
-"""
 
 chunker = nltk.RegexpParser(GRAMMAR)
 
