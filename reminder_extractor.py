@@ -34,7 +34,6 @@ GRAMMAR = r"""
         {<NBAR|NBAREXT>*}
     VBAR:
         {<V><V>*<R>*<TO>*}
-        {<V><V>*<R>*<TO>*}
         {<V><V>*<R|TO>*}
     ACTION:
         {<VBAR.*|NP.*|R.*>*}
@@ -58,9 +57,11 @@ def _extractor(text):
     if text[-1] in FORBIDDENWORDS:
         text = text[:-1]
     text = ' '.join(text)
+
     toks = nltk.regexp_tokenize(text, REGEX)
     postoks = nltk.tag.pos_tag(toks)
     tree = chunker.parse(postoks)
+
     extractions = [' '.join(list(zip(*leaf))[0]) for leaf in _leaves(tree)]
     # TODO: drop extractions such as 'remind' 'reminder'
     extractions = [e for e in extractions if not any(w in e for w in FORBIDDENWORDS)]
